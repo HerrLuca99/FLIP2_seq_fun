@@ -1,0 +1,13 @@
+data/
+*.csv
+*.tsv
+*.xlsx
+*.parquet
+
+# Ignore uv virtual environment
+.venv/
+
+# Ignore Python cache and environment variables
+__pycache__/
+*.pyc
+.env
