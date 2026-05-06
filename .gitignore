@@ -11,3 +11,9 @@ data/
 __pycache__/
 *.pyc
 .env
+
+flip2_Project/test/
+vina/
+vina.log
+*.pkl
+Theozyme/
