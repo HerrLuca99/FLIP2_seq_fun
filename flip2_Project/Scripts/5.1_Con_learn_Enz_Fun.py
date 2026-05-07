@@ -92,7 +92,7 @@ class EnzProjectionHead(nn.Module):
 
     def forward(self, x):
         out = self.net(x)
-        return F.normalize(out, p=2, dim=1)#p2 means L2 normalise along the embedding dimesion to reduce the embedding space itself
+        return F.normalize(out, p=2, dim=1)#p2 means L2 normalise along the embedding dimesion to squash the embedding space itself
     
 model = EnzProjectionHead(in_dim, hid_dim, out_dim)   
 print(model)
@@ -124,13 +124,12 @@ print(loss_model)
 
 # %%
 #Training loop 
-target_steps = 1000
-learning_rate = 0.001
+num_epochs = 50
+learning_rate = 0.0001
 batch_size = 64
 
 
-num_batches = math.ceil(len(dataset) / batch_size )
-num_epochs  = math.ceil(target_steps / num_batches)
+
 
 
 # %%
@@ -162,7 +161,7 @@ for epoch in range(num_epochs):
         total_loss += loss.item()
 
     print(f"Epoch {epoch + 1}, Loss: {loss.item():.4f}")
-print(f"Epoch {epoch + 1}, Loss: {total_loss / num_batches:.4f}")
+
 
 
 # %%
@@ -219,8 +218,8 @@ print(len(df_csv_for_pick))
 print(df_csv_for_pick.columns.tolist())
 
 # %%
-#For UMAP preselct the sequences otherwise need to long to be able to do it
-# be cautious it currently only plots on thetraining data otherwise needs to long for 600 k sequences change later
+# For UMAP preselct the sequences otherwise need to long to be able to do it
+# be cautious it currently only plots on the training data otherwise needs to long for 600 k sequences change later
 unique_train_ids = set(df_paires['id_1']).union(set(df_paires['id_2']))
 print(len(unique_train_ids))
 
@@ -246,6 +245,7 @@ print(umap_results.shape)
 
 
 # %%
+# Plot the UMAP results colored by the uni_scale values
 plt.figure(figsize=(10,8))
 scatter = plt.scatter(x = umap_results[:, 0], y = umap_results[:, 1], cmap = 'viridis', c=scales_sub, s=5 )
 
@@ -256,11 +256,13 @@ plt.show()
 
 
 # %%
-Next steps:
-1. Test loop
-2. extending to negative paires and tripplet loss (anchor, neg and pos pair)
-3. Hyperparameter tuning
-4. increast Training data batch_size
-5. Play around with pairing 
-6. include hamming distance
-7. 
+#PCA
+#T stochastic neighbour embedding 
+# Next steps:
+# 1. Test loop
+# 2. extending to negative paires and tripplet loss (anchor, neg and pos pair)
+# 3. Hyperparameter tuning
+# 4. increast Training data batch_size
+# 5. Play around with pairing 
+# 6. include hamming distance
+ hi
