@@ -24,6 +24,7 @@ dependencies = [
     "scikit-learn>=1.8.0",
     "nltk>=3.9.4",
     "pyspark>=4.1.1",
+    "umap-learn>=0.5.12",
 ]
 
 [[tool.uv.index]]

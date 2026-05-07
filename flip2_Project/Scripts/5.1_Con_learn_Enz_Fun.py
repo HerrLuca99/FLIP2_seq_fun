@@ -167,15 +167,89 @@ print(f"Epoch {epoch + 1}, Loss: {total_loss / num_batches:.4f}")
 # %%
 ## Evaluate the model 
 # Generate embeddings for all sequences
+def get_con_model_embeddings(model, embedding_dict, family_prefix, device):
+    model.eval()
+    projected = []
+    ids =[]
+    batch_tensor = []
+    batch_ids = []
+
+    with torch.no_grad():
+        for seq_id, raw_emb in tqdm(embedding_dict.items()):
+            if family_prefix not in seq_id:
+                continue
+            batch_tensor.append(torch.tensor(raw_emb, dtype=torch.float32))
+            batch_ids.append(seq_id)
+
+            if len(batch_tensor) == batch_size:
+                batch = torch.stack(batch_tensor).to(device)
+                out = model(batch).cpu()
+                projected.append(out)
+                ids.extend(batch_ids)
+                batch_tensor = []
+                batch_ids = []
+
+        if batch_tensor:
+            batch = torch.stack(batch_tensor).to(device)
+            out = model(batch).cpu()
+            projected.append(out)
+            ids.extend(batch_ids)
+
+
+    return torch.cat(projected).numpy(), ids
+#toch.stack for single sequences which are get stacked together vs cat for 2D tensor
 
 
 # %%
-# Reduce Dimension 
+# Check if it worked
+proj_matrix, seq_id = get_con_model_embeddings(model, df_pickle, "TB", device)
+print(proj_matrix.shape)
+print(seq_id)
 
 
 # %%
+#Check Data availability before UMAP
+print(proj_matrix.shape)
+print(len(seq_id))
 #Plot
+df_csv_for_pick = pd.read_csv('/home/lherrmann/projects/enzyme-design/flip2_Project/test/csv_id/uni_scale/TB.csv')
+print(len(df_csv_for_pick))
+
+print(df_csv_for_pick.columns.tolist())
+
+# %%
+#For UMAP preselct the sequences otherwise need to long to be able to do it
+# be cautious it currently only plots on thetraining data otherwise needs to long for 600 k sequences change later
+unique_train_ids = set(df_paires['id_1']).union(set(df_paires['id_2']))
+print(len(unique_train_ids))
+
+id_to_scale = df_csv_for_pick.set_index('id')['uni_scale'].to_dict()
+scales = [id_to_scale[sid] for sid in seq_id]
+
+filtered_idx = [i for i, sid in enumerate(seq_id) if sid in unique_train_ids]
+proj_sub = proj_matrix[filtered_idx]
+scales_sub = [scales[i] for i in filtered_idx]
+
+print(proj_sub)
+print(scales_sub)
+
+# %%
+#UMAP: compresses 128 dimensional space into 2D space
+import umap
+
+reducer = umap.UMAP(n_components=2, random_state=42)# random state: every time you run this code, you get the exact same map
+umap_results = reducer.fit_transform(proj_sub)
+print(umap_results.shape)
+
+
 
 
 # %%
+plt.figure(figsize=(10,8))
+scatter = plt.scatter(x = umap_results[:, 0], y = umap_results[:, 1], cmap = 'viridis', c=scales_sub, s=5 )
 
+plt.colorbar(scatter, label='Uni_scale')
+plt.xlabel('UMAP_1')
+plt.ylabel('UMAP_2')
+plt.show()
+# %%
