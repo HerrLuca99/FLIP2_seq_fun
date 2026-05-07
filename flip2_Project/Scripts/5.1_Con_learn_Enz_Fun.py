@@ -43,6 +43,7 @@ num_paires = df_paires['id_1'].count()
 print(num_paires)
 
 # %%
+## This needs all be extended for the triplet loss at some point
 ## Build the Dataset class
 class Pairdataset(Dataset):
     def __init__(self, pair_indices, embeddings):
@@ -252,4 +253,14 @@ plt.colorbar(scatter, label='Uni_scale')
 plt.xlabel('UMAP_1')
 plt.ylabel('UMAP_2')
 plt.show()
+
+
 # %%
+Next steps:
+1. Test loop
+2. extending to negative paires and tripplet loss (anchor, neg and pos pair)
+3. Hyperparameter tuning
+4. increast Training data batch_size
+5. Play around with pairing 
+6. include hamming distance
+7. 
